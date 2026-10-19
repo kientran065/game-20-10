@@ -1,0 +1,127 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Hai phần ba – trò chơi đoán số</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:wght@400;500;600&family=Bricolage+Grotesque:opsz,wght@12..96,600;12..96,800&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="/static/style.css">
+</head>
+<body>
+<header class="top">
+  <div class="brand"><span class="frac"><b>2</b><i></i><b>3</b></span> Hai phần ba</div>
+  <div id="roomTag" class="room-tag" hidden>
+    Phòng <strong id="roomCode"></strong>
+    <button id="leaveBtn" class="link">Rời phòng</button>
+  </div>
+</header>
+
+<main>
+  <div id="toast" class="toast" role="status" hidden></div>
+
+  <!-- TRANG CHỦ -->
+  <section id="view-home" class="view">
+    <div class="hero">
+      <h1>Đoán số bằng hai phần ba của đám đông.</h1>
+      <p>Mỗi người chọn một số từ 1 đến 99. Ai gần nhất với 2/3 trung bình của cả phòng sẽ nhận 100 điểm.</p>
+    </div>
+    <div class="two-col">
+      <form id="createForm" class="panel">
+        <h2>Tạo phòng</h2>
+        <label>Tên của bạn <input name="name" maxlength="20" required autocomplete="off"></label>
+        <label>Số người tối đa <input name="max_players" type="number" min="2" max="50" value="10"></label>
+        <label>Thời gian chọn số (giây) <input name="time_limit" type="number" min="5" max="600" value="30"></label>
+        <label class="check"><input name="early_end" type="checkbox" checked> Kết thúc sớm khi mọi người đã chốt số</label>
+        <button class="btn primary" type="submit">Tạo phòng</button>
+      </form>
+      <form id="joinForm" class="panel">
+        <h2>Vào phòng</h2>
+        <label>Tên của bạn <input name="name" maxlength="20" required autocomplete="off"></label>
+        <label>Mã phòng <input name="code" maxlength="4" required autocomplete="off" class="code-input"></label>
+        <button class="btn" type="submit">Vào phòng</button>
+      </form>
+    </div>
+  </section>
+
+  <!-- PHÒNG CHỜ -->
+  <section id="view-lobby" class="view" hidden>
+    <div class="lobby-head">
+      <div>
+        <p class="muted">Gửi mã này cho bạn bè</p>
+        <div class="big-code" id="bigCode"></div>
+      </div>
+      <button id="startBtn" class="btn primary" hidden>Bắt đầu</button>
+    </div>
+    <div class="two-col">
+      <div class="panel">
+        <h2>Người chơi <span class="muted" id="playerCount"></span></h2>
+        <ul id="lobbyPlayers" class="plist"></ul>
+        <p id="waitMsg" class="muted" hidden>Đang chờ quản trò bắt đầu…</p>
+      </div>
+      <form id="settingsForm" class="panel">
+        <h2>Cài đặt phòng</h2>
+        <label>Số người tối đa <input name="max_players" type="number" min="2" max="50"></label>
+        <label>Thời gian chọn số (giây) <input name="time_limit" type="number" min="5" max="600"></label>
+        <label class="check"><input name="early_end" type="checkbox"> Kết thúc sớm khi mọi người đã chốt số</label>
+        <button class="btn" type="submit" id="saveSettings">Lưu cài đặt</button>
+        <p class="muted" id="settingsReadonly" hidden>Chỉ quản trò mới chỉnh được cài đặt.</p>
+      </form>
+    </div>
+  </section>
+
+  <!-- ĐANG CHƠI -->
+  <section id="view-play" class="view" hidden>
+    <div class="timer-row">
+      <span class="muted">Vòng <span id="roundNo"></span></span>
+      <div class="timer" id="timer">30</div>
+    </div>
+    <div class="bar"><div id="barFill"></div></div>
+
+    <form id="pickForm" class="pick">
+      <label for="pickInput" class="muted">Chọn một số từ 1 đến 99</label>
+      <input id="pickInput" type="number" min="1" max="99" inputmode="numeric" autocomplete="off">
+      <button class="btn primary" type="submit" id="pickBtn">Chốt số</button>
+    </form>
+    <p id="pickedMsg" class="picked" hidden></p>
+
+    <div class="panel">
+      <h2>Đã chốt số <span class="muted" id="submittedCount"></span></h2>
+      <ul id="playPlayers" class="plist"></ul>
+    </div>
+  </section>
+
+  <!-- KẾT QUẢ -->
+  <section id="view-results" class="view" hidden>
+    <p id="verdict" class="verdict"></p>
+
+    <div class="matrix" id="matrix">
+      <div class="cell"><span class="lbl">Số đã chọn</span><span class="val" id="mPick"></span></div>
+      <div class="cell"><span class="lbl">Số mục tiêu</span><span class="val" id="mTarget"></span></div>
+      <div class="cell"><span class="lbl">Số gần nhất</span><span class="val" id="mClosest"></span></div>
+      <div class="cell empty"></div>
+    </div>
+
+    <div class="panel">
+      <h2>Mọi người đã chọn</h2>
+      <div class="chart" id="chart"></div>
+    </div>
+
+    <div class="panel">
+      <h2>Bảng thành tích</h2>
+      <table class="board">
+        <thead><tr><th>Người chơi</th><th>Điểm</th></tr></thead>
+        <tbody id="boardBody"></tbody>
+      </table>
+    </div>
+
+    <div class="actions">
+      <button id="restartBtn" class="btn primary" hidden>Chơi lại với những người này</button>
+      <p id="restartWait" class="muted" hidden>Đang chờ quản trò bắt đầu vòng mới…</p>
+    </div>
+  </section>
+</main>
+<script src="/static/app.js"></script>
+</body>
+</html>
